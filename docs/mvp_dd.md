@@ -2,13 +2,13 @@
 
 ## システムアーキテクチャ
 ### シンプルな2層構造
-- フロントエンド：Python CLI（Google Colaboratory）
+- フロントエンド：Python Webアプリ（Streamlit）
 - バックエンド：Haskellロジック（組み込み）
 
 ### アーキテクチャ図
 ```mermaid
 graph TD
-    A[Python CLI] --> B[Haskell Core]
+    A[Python Streamlit Web app] --> B[Haskell Core]
     B --> C[Local Storage]
     B --> D[Game Logic]
     D --> E[Hand Evaluator]
@@ -46,7 +46,7 @@ data Problem = Problem {
 ```
 
 ## UI/UX設計
-### CLI画面レイアウト
+### WebApp画面レイアウト
 ```
 === テキサスホールデム・ショーダウンマスター ===
 残り時間: 57秒  現在のスコア: 30点
@@ -66,27 +66,27 @@ data Problem = Problem {
 ```mermaid
 sequenceDiagram
     participant User
-    participant CLI
+    participant WebApp
     participant Core
     participant Storage
     
-    User->>CLI: start game
-    CLI->>Core: initialize game
+    User->>WebApp: start game
+    WebApp->>Core: initialize game
     Core->>Storage: load problems
-    Core->>CLI: display problem
+    Core->>WebApp: display problem
     loop Game Loop
-        User->>CLI: input answer
-        CLI->>Core: validate answer
+        User->>WebApp: input answer
+        WebApp->>Core: validate answer
         Core->>Storage: record result
-        Core->>CLI: show result
-        CLI->>CLI: check time
+        Core->>WebApp: show result
+        WebApp->>WebApp: check time
         alt Time Remaining
-            CLI->>Core: next problem
+            WebApp->>Core: next problem
         else Time Up
-            CLI->>CLI: end game
+            WebApp->>WebApp: end game
         end
     end
-    CLI->>Storage: save final results
+    WebApp->>Storage: save final results
 ```
 
 ### スコアリングシステム
@@ -95,9 +95,9 @@ sequenceDiagram
 ### 開発環境と言語
 - Python 3.8+
 - Haskell GHC 9.4.7
-- Google Colaboratory
-- Git/GitHub
+- Streamlit (Python)
 - Stack (Haskell)
+- Git/GitHub
 
 ### クラス構造
 
@@ -124,6 +124,11 @@ stack new rainbow
 mv rainbow haskell
 cd haskell
 stack run
+
+# Python環境セットアップ
+python3 -m venv venv
+. venv/bin/activate
+pip install streamlit 
 ```
 
 ### モニタリング
