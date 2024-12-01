@@ -23,10 +23,10 @@ def get_problems() -> List[Problem]:
     response = requests.get("http://localhost:3000/problem")
     data = response.json()
     return [Problem(
-        community_cards=[Card(**card) for card in data['communityCards']],
-        player_hands=[[Card(**card) for card in hand] for hand in data['playerHands']],
-        correct_answer=data['correctAnswer']
-    )]
+        community_cards=[Card(**card) for card in d['communityCards']],
+        player_hands=[[Card(**card) for card in hand] for hand in d['playerHands']],
+        correct_answer=d['correctAnswer']
+    ) for d in data]
 
 def initialize_session_state():
     if 'game_state' not in st.session_state:

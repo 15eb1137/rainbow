@@ -4,10 +4,8 @@ import Lib
 import Web.Scotty
 import Network.HTTP.Types.Status (status200)
 import Network.Wai.Middleware.Cors
-import Data.Text.Lazy (Text)
 import qualified Data.Text.Lazy as TL
 import Network.HTTP.Types.Method
-import qualified Data.ByteString.Char8 as BS
 import Network.HTTP.Types.Header (hContentType)
 
 main :: IO ()
