@@ -3,6 +3,7 @@ import random
 import time
 from dataclasses import dataclass
 from typing import List, Tuple
+import requests
 
 @dataclass
 class Card:
@@ -18,26 +19,14 @@ class Problem:
     player_hands: List[Tuple[Card, Card]]
     correct_answer: int
 
-def create_deck() -> List[Card]:
-    suits = ['♠', '♥', '♦', '♣']
-    ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
-    return [Card(suit, rank) for suit in suits for rank in ranks]
-
-def generate_problem() -> Problem:
-    deck = create_deck()
-    random.shuffle(deck)
-    
-    community_cards = deck[:5]
-    player_hands = [
-        (deck[5:7]),
-        (deck[7:9])
-    ]
-    
-    return Problem(
-        community_cards=community_cards,
-        player_hands=player_hands,
-        correct_answer=random.randint(1, 2)  # 2人プレイヤーに修正
-    )
+def get_problems() -> List[Problem]:
+    response = requests.get("http://localhost:3000/problem")
+    data = response.json()
+    return [Problem(
+        community_cards=[Card(**card) for card in data['communityCards']],
+        player_hands=[[Card(**card) for card in hand] for hand in data['playerHands']],
+        correct_answer=data['correctAnswer']
+    )]
 
 def initialize_session_state():
     if 'game_state' not in st.session_state:
@@ -48,8 +37,10 @@ def initialize_session_state():
         st.session_state.problems_solved = 0
     if 'start_time' not in st.session_state:
         st.session_state.start_time = None
-    if 'current_problem' not in st.session_state:
-        st.session_state.current_problem = None
+    if 'problem_list' not in st.session_state:
+        st.session_state.problem_list = []
+    if 'current_problem_index' not in st.session_state:
+        st.session_state.current_problem_index = None
     if 'key_suffix' not in st.session_state:
         st.session_state.key_suffix = 0  # ボタンのキーを動的に変更するため
 
@@ -65,7 +56,8 @@ def start_screen():
     if st.button("ゲームスタート", use_container_width=True):
         st.session_state.game_state = "playing"
         st.session_state.start_time = time.time()
-        st.session_state.current_problem = generate_problem()
+        st.session_state.problem_list = get_problems()
+        st.session_state.current_problem_index = 0
         st.rerun()
 
 def game_screen():
@@ -84,10 +76,10 @@ def game_screen():
     if remaining_time > 0:
         # 問題表示
         st.subheader("コミュニティカード")
-        st.write(" ".join(str(card) for card in st.session_state.current_problem.community_cards))
+        st.write(" ".join(str(card) for card in st.session_state.problem_list[st.session_state.current_problem_index].community_cards))
         
         st.subheader("プレイヤーの手札")
-        for i, hand in enumerate(st.session_state.current_problem.player_hands, 1):
+        for i, hand in enumerate(st.session_state.problem_list[st.session_state.current_problem_index].player_hands, 1):
             st.write(f"プレイヤー{i}: {str(hand[0])} {str(hand[1])}")
         
         # 回答ボタン
@@ -98,7 +90,7 @@ def game_screen():
         for i, label in enumerate(["プレイヤー1", "プレイヤー2", "スプリットポット"], 1):
             with cols[i-1]:
                 if st.button(label, key=f"btn_{i}_{st.session_state.key_suffix}", use_container_width=True):
-                    if i == st.session_state.current_problem.correct_answer:
+                    if i == st.session_state.problem_list[st.session_state.current_problem_index].correct_answer:
                         st.success("正解です！ +10点")
                         st.session_state.score += 10
                     else:
@@ -106,7 +98,10 @@ def game_screen():
                         st.session_state.score -= 5
                     
                     st.session_state.problems_solved += 1
-                    st.session_state.current_problem = generate_problem()
+                    if st.session_state.current_problem_index + 1 < len(st.session_state.problem_list):
+                        st.session_state.current_problem_index += 1
+                    else :
+                        st.session_state.current_problem_index = 0
                     st.session_state.key_suffix += 1  # キーを更新して新しいボタンを生成
                     time.sleep(0.5)
                     st.rerun()
@@ -126,7 +121,8 @@ def end_screen():
             initialize_session_state()
             st.session_state.game_state = "playing"
             st.session_state.start_time = time.time()
-            st.session_state.current_problem = generate_problem()
+            st.session_state.problem_list = get_problems()
+            st.session_state.current_problem_index = 0
             st.rerun()
     
     with col2:
