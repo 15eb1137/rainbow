@@ -39,6 +39,7 @@ library
     , base >=4.7 && <5
     , bytestring
     , http-types
+    , random
     , scotty
     , text
     , wai-cors
@@ -59,6 +60,7 @@ executable rainbow-exe
     , bytestring
     , http-types
     , rainbow
+    , random
     , scotty
     , text
     , wai-cors
@@ -80,6 +82,7 @@ test-suite rainbow-test
     , bytestring
     , http-types
     , rainbow
+    , random
     , scotty
     , text
     , wai-cors
