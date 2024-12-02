@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Lib
+      SampleProblems
   other-modules:
       Paths_rainbow
   autogen-modules:
