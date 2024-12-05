@@ -77,58 +77,98 @@ def start_screen():
         st.session_state.current_problem_index = 0
         st.rerun()
 
-
 def game_screen():
-    st.title("Quick Draw Poker Showdown")
-
-    # スコアと残り時間の表示
-    col1, col2 = st.columns(2)
+    # スコアと残り時間の表示用のコンテナを作成
+    score_time_container = st.empty()
+    
+    # 経過時間を計算
     elapsed_time = int(time.time() - st.session_state.start_time)
     remaining_time = max(60 - elapsed_time, 0)
+    
+    # 残り時間とスコアの表示
+    with score_time_container:
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("⏳ 残り時間", f"{remaining_time}秒")
+        with col2:
+            st.metric("🎯 スコア", f"{st.session_state.score}点")
 
-    with col1:
-        st.metric("残り時間", f"{remaining_time}秒")
-    with col2:
-        st.metric("現在のスコア", f"{st.session_state.score}点")
-
-    if remaining_time > 0:
-        # 問題表示
-        st.subheader("コミュニティカード")
-        st.write(" ".join(str(card)
-                 for card in st.session_state.problem_list[st.session_state.current_problem_index].community_cards))
-
-        st.subheader("プレイヤーの手札")
-        for i, hand in enumerate(st.session_state.problem_list[st.session_state.current_problem_index].player_hands, 1):
-            st.write(f"プレイヤー{i}: {str(hand[0])} {str(hand[1])}")
-
-        # 回答ボタン
-        st.write("### 勝者を選択してください：")
-        cols = st.columns(3)
-
-        # 動的なキーを使用してボタンを生成
-        for i, label in enumerate(["プレイヤー1", "プレイヤー2", "スプリットポット"], 1):
-            with cols[i-1]:
-                if st.button(label, key=f"btn_{i}_{st.session_state.key_suffix}", use_container_width=True):
-                    if i == st.session_state.problem_list[st.session_state.current_problem_index].correct_answer:
-                        st.success("正解です！ +10点")
-                        st.session_state.score += 10
-                    else:
-                        st.error("不正解です。 -5点")
-                        st.session_state.score -= 5
-
-                    st.session_state.problems_solved += 1
-                    if st.session_state.current_problem_index + 1 < len(st.session_state.problem_list):
-                        st.session_state.current_problem_index += 1
-                    else:
-                        st.session_state.current_problem_index = 0
-                    st.session_state.key_suffix += 1  # キーを更新して新しいボタンを生成
-                    time.sleep(0.5)
-                    st.rerun()
-    else:
+    if remaining_time <= 0:
         st.session_state.game_state = "end"
         st.rerun()
+        return
+
+    # コミュニティカード表示
+    community_cards = ' '.join(str(card) for card in st.session_state.problem_list[st.session_state.current_problem_index].community_cards)
+    st.metric("🃏 コミュニティカード", community_cards)
+    
+    st.write("👥 プレイヤーの手札", unsafe_allow_html=True)
+    
+    # プレイヤーの手札とボタンを表示するコンテナ
+    game_container = st.container()
+    
+    with game_container:
+        for i, hand in enumerate(st.session_state.problem_list[st.session_state.current_problem_index].player_hands, 1):
+            cols = st.columns([1, 1, 1])
+            with cols[0]:
+                st.write(f"### プレイヤー{i}")
+            with cols[1]:
+                st.write(f"### {str(hand[0])} {str(hand[1])}")
+            with cols[2]:
+                if st.button(f"プレイヤー{i}を選択", key=f"btn_{i}_{st.session_state.key_suffix}", use_container_width=True):
+                    if i == st.session_state.problem_list[st.session_state.current_problem_index].correct_answer:
+                        st.session_state.score += 10
+                        st.session_state.temp_message = {"type": "success", "text": "正解です！ +10点"}
+                    else:
+                        st.session_state.score -= 5
+                        st.session_state.temp_message = {"type": "error", "text": "不正解です。 -5点"}
 
 
+
+        # スプリットポットのボタンを同じ幅で配置
+        cols = st.columns([2, 1])
+        with cols[0]:
+            st.write("")
+        with cols[1]:
+            if st.button("チョップ", key=f"btn_3_{st.session_state.key_suffix}", use_container_width=True):
+                if 3 == st.session_state.problem_list[st.session_state.current_problem_index].correct_answer:
+                    st.session_state.score += 10
+                    st.session_state.temp_message = {"type": "success", "text": "正解です！ +10点"}
+                else:
+                    st.session_state.score -= 5
+                    st.session_state.temp_message = {"type": "error", "text": "不正解です。 -5点"}
+
+    # 空白を入れてメッセージとボタンの間にスペースを作る
+    st.write("")
+    
+    # メッセージ表示用のコンテナを作成
+    message_container = st.empty()
+    
+    # メッセージを表示
+    if hasattr(st.session_state, 'temp_message'):
+        with message_container:
+            if st.session_state.temp_message["type"] == "success":
+                st.success(st.session_state.temp_message["text"])
+            else:
+                st.error(st.session_state.temp_message["text"])
+        # 1秒後にメッセージを消去
+        time.sleep(1)
+        delattr(st.session_state, 'temp_message')
+        message_container.empty()
+        
+        # 次の問題に進む
+        st.session_state.problems_solved += 1
+        if st.session_state.current_problem_index + 1 < len(st.session_state.problem_list):
+            st.session_state.current_problem_index += 1
+        else:
+            st.session_state.current_problem_index = 0
+        st.session_state.key_suffix += 1
+        st.rerun()
+
+    # 自動更新のためのrerun
+    time.sleep(0.1)
+    st.rerun()
+    
 def end_screen():
     st.title("ゲーム終了！")
     st.write(f"### 最終スコア: {st.session_state.score}点")
@@ -163,6 +203,9 @@ HIDE_ST_STYLE = """
             visibility: hidden;
             height: 0%;
             position: fixed;
+            }
+            div[data-testid="stMainBlockContainer"] {
+            padding: 0;
             }
             #MainMenu {
             visibility: hidden;
