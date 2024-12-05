@@ -166,7 +166,7 @@ def game_screen():
         st.rerun()
 
     # 自動更新のためのrerun
-    time.sleep(0.1)
+    time.sleep(1)
     st.rerun()
     
 def end_screen():
