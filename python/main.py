@@ -61,60 +61,6 @@ def initialize_session_state():
         st.session_state.key_suffix = 0  # ボタンのキーを動的に変更するため
 
 
-HIDE_ST_STYLE = """
-            <style>
-            div[data-testid="stHeader"] {
-            visibility: hidden;
-            height: 0%;
-            position: fixed;
-            }            
-            div[data-testid="stToolbar"] {
-            visibility: hidden;
-            height: 0%;
-            position: fixed;
-            }
-            div[data-testid="stDecoration"] {
-            visibility: hidden;
-            height: 0%;
-            position: fixed;
-            }
-            #MainMenu {
-            visibility: hidden;
-            height: 0%;
-            }
-            header {
-            visibility: hidden;
-            height: 0%;
-            }
-            footer {
-            visibility: hidden;
-            height: 0%;
-            }
-                    .appview-container .main .block-container{
-                        padding-top: 1rem;
-                        padding-right: 3rem;
-                        padding-left: 3rem;
-                        padding-bottom: 1rem;
-                    }  
-                    .reportview-container {
-                        padding-top: 0rem;
-                        padding-right: 3rem;
-                        padding-left: 3rem;
-                        padding-bottom: 0rem;
-                    }
-                    header[data-testid="stHeader"] {
-                        z-index: -1;
-                    }
-                    div[data-testid="stToolbar"] {
-                    z-index: 100;
-                    }
-                    div[data-testid="stDecoration"] {
-                    z-index: 100;
-                    }
-            </style>
-"""
-
-
 def start_screen():
     st.title("Quick Draw Poker Showdown")
     st.write("### ゲーム説明")
@@ -133,8 +79,6 @@ def start_screen():
 
 
 def game_screen():
-    st.markdown(HIDE_ST_STYLE, unsafe_allow_html=True)
-
     st.title("Quick Draw Poker Showdown")
 
     # スコアと残り時間の表示
@@ -208,8 +152,59 @@ def end_screen():
             st.rerun()
 
 
+HIDE_ST_STYLE = """
+            <style>
+            div[data-testid="stToolbar"] {
+            visibility: hidden;
+            height: 0%;
+            position: fixed;
+            }
+            div[data-testid="stDecoration"] {
+            visibility: hidden;
+            height: 0%;
+            position: fixed;
+            }
+            #MainMenu {
+            visibility: hidden;
+            height: 0%;
+            }
+            header {
+            visibility: hidden;
+            height: 0%;
+            }
+            footer {
+            visibility: hidden;
+            height: 0%;
+            }
+                    .appview-container .main .block-container{
+                        padding-top: 1rem;
+                        padding-right: 3rem;
+                        padding-left: 3rem;
+                        padding-bottom: 1rem;
+                    }  
+                    .reportview-container {
+                        padding-top: 0rem;
+                        padding-right: 3rem;
+                        padding-left: 3rem;
+                        padding-bottom: 0rem;
+                    }
+                    header[data-testid="stHeader"] {
+                        z-index: -1;
+                    }
+                    div[data-testid="stToolbar"] {
+                    z-index: 100;
+                    }
+                    div[data-testid="stDecoration"] {
+                    z-index: 100;
+                    }
+            </style>
+"""
+
+
 def main():
+
     st.set_page_config(page_title="Quick Draw Poker Showdown")
+    st.markdown(HIDE_ST_STYLE, unsafe_allow_html=True)
     initialize_session_state()
 
     if st.session_state.game_state == "start":
