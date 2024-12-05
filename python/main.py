@@ -89,32 +89,33 @@ def game_screen():
     with score_time_container:
         col1, col2 = st.columns(2)
         with col1:
-            st.metric("⏳ 残り時間", f"{remaining_time}秒")
+            st.write("### ⏳ 残り時間：", f"{remaining_time}秒")
         with col2:
-            st.metric("🎯 スコア", f"{st.session_state.score}点")
+            st.write("### 🎯 スコア：", f"{st.session_state.score}点")
 
     if remaining_time <= 0:
         st.session_state.game_state = "end"
         st.rerun()
         return
+    
+    st.write("")
 
     # コミュニティカード表示
     community_cards = ' '.join(str(card) for card in st.session_state.problem_list[st.session_state.current_problem_index].community_cards)
-    st.metric("🃏 コミュニティカード", community_cards)
-    
-    st.write("👥 プレイヤーの手札", unsafe_allow_html=True)
+    st.write("🃏 コミュニティカード")
+    st.write(f"##### {community_cards}")
+    st.write("")
+    st.write("👥 プレイヤーの手札")
     
     # プレイヤーの手札とボタンを表示するコンテナ
     game_container = st.container()
     
     with game_container:
         for i, hand in enumerate(st.session_state.problem_list[st.session_state.current_problem_index].player_hands, 1):
-            cols = st.columns([1, 1, 1])
+            cols = st.columns([2, 1])
             with cols[0]:
-                st.write(f"### プレイヤー{i}")
+                st.write(f"##### プレイヤー{i}：{str(hand[0])} {str(hand[1])}")
             with cols[1]:
-                st.write(f"### {str(hand[0])} {str(hand[1])}")
-            with cols[2]:
                 if st.button(f"プレイヤー{i}を選択", key=f"btn_{i}_{st.session_state.key_suffix}", use_container_width=True):
                     if i == st.session_state.problem_list[st.session_state.current_problem_index].correct_answer:
                         st.session_state.score += 10
@@ -137,10 +138,9 @@ def game_screen():
                 else:
                     st.session_state.score -= 5
                     st.session_state.temp_message = {"type": "error", "text": "不正解です。 -5点"}
-
-    # 空白を入れてメッセージとボタンの間にスペースを作る
-    st.write("")
     
+    st.write("")
+
     # メッセージ表示用のコンテナを作成
     message_container = st.empty()
     
