@@ -63,6 +63,11 @@ def initialize_session_state():
 
 HIDE_ST_STYLE = """
             <style>
+            div[data-testid="stHeader"] {
+            visibility: hidden;
+            height: 0%;
+            position: fixed;
+            }            
             div[data-testid="stToolbar"] {
             visibility: hidden;
             height: 0%;
