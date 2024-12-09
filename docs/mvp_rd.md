@@ -63,7 +63,9 @@
 ### 開発言語・環境
 - Python 3.x
 - Streamlit
+- SQL
 - Supabase
+
 
 ### 開発ツール
 - Git
