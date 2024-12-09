@@ -35,7 +35,7 @@ def main():
     # サイドバーにテーブル選択を追加
     table_name = st.sidebar.selectbox(
         "分析するテーブルを選択してください",
-        ["problems", "hand_rankings", "winning_hands"]
+        ["problems", "hand_rankings", "winning_hands", "game_sessions", "game_answers"]
     )
     
     # データの取得
